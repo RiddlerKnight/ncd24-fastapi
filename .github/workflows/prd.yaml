@@ -40,8 +40,8 @@ jobs:
         run: echo "DEPLOY_VERSION=${{ inputs.use-latest && steps.semver.outputs.tag || inputs.version }}" >> "$GITHUB_ENV"
       - name: Generate job summary version to deploy
         run: |
-          echo IMAGE_REPO=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-          echo IMAGE_NAME=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo "IMAGE_REPO_NORMAL=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "IMAGE_NAME_NORMAL=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           echo "This GitHub Actions is going to deploy ${{ env.IMAGE_NAME }} to version ${{ env.DEPLOY_VERSION }}" >> $GITHUB_STEP_SUMMARY
     outputs:
       image_tag: ${{ env.DEPLOY_VERSION }}
@@ -58,7 +58,7 @@ jobs:
         id: check-tag
         with:
           registry: ${{ env.IMAGE_REGISTRY }}
-          repository: ${{ env.IMAGE_REPO }}
+          repository: ${{ env.IMAGE_REPO_NORMAL }}
           tag: ${{ needs.setup.outputs.image_tag }}
       - name: Fail if container image tag not exists
         if: steps.check-tag.outputs.tag == 'not found'
@@ -78,7 +78,7 @@ jobs:
           changes: |
             {
               "image.tag": "${{ needs.setup.outputs.image_tag }}",
-              "image.repository": "${{ env.IMAGE_NAME }}"
+              "image.repository": "${{ env.IMAGE_NAME_NORMAL }}"
             }
       - name: Commit to GitOps repository
         uses: leigholiver/commit-with-deploy-key@v1.0.4
@@ -87,4 +87,4 @@ jobs:
           destination_folder: ${{ env.HELM_VALUES_FOLDER }}
           destination_repo: ${{ env.GITOPS_REPO }}
           deploy_key: ${{ secrets.GITOPS_DEPLOY_KEY }}
-          commit_message: "Update Image Version to ${{ env.IMAGE_NAME}}:${{ needs.setup.outputs.image_tag }}"
+          commit_message: "Update Image Version to ${{ env.IMAGE_NAME_NORMAL}}:${{ needs.setup.outputs.image_tag }}"
