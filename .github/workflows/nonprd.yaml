@@ -36,15 +36,15 @@ jobs:
           else
             echo "DEPLOY_ENV=${{ github.ref_name }}" >> "$GITHUB_ENV"
           fi
-          echo IMAGE_REPO=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-          echo IMAGE_NAME=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo "IMAGE_REPO_NORMAL=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "IMAGE_NAME_NORMAL=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
           # list of Docker images to use as base name for tags
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_NAME_NORMAL }}
           # generate Docker tags based on the following events/attributes
           tags: |
             # branch event
@@ -87,8 +87,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ needs.setup.outputs.tags }}
           labels: ${{ needs.setup.outputs.labels }}
-          cache-to: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
-          cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_NAME_NORMAL }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.IMAGE_NAME_NORMAL }}:buildcache
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
 
@@ -104,7 +104,7 @@ jobs:
         id: check-tag
         with:
           registry: ${{ env.IMAGE_REGISTRY }}
-          repository: ${{ env.IMAGE_REPO }}
+          repository: ${{ env.IMAGE_REPO_NORMAL }}
           tag: ${{ needs.setup.outputs.image_tag }}
       - name: Fail if container image tag not exists
         if: steps.check-tag.outputs.tag == 'not found'
@@ -124,7 +124,7 @@ jobs:
           changes: |
             {
               "image.tag": "${{ needs.setup.outputs.image_tag }}",
-              "image.repository": "${{ env.IMAGE_NAME }}"
+              "image.repository": "${{ env.IMAGE_NAME_NORMAL }}"
             }
       - name: Commit to GitOps repository
         uses: leigholiver/commit-with-deploy-key@v1.0.4
@@ -133,4 +133,4 @@ jobs:
           destination_folder: ${{ env.HELM_VALUES_FOLDER }}
           destination_repo: ${{ env.GITOPS_REPO }}
           deploy_key: ${{ secrets.GITOPS_DEPLOY_KEY }}
-          commit_message: "Update Image Version to ${{ env.IMAGE_NAME}}:${{ needs.setup.outputs.image_tag }}"
+          commit_message: "Update Image Version to ${{ env.IMAGE_NAME_NORMAL}}:${{ needs.setup.outputs.image_tag }}"
