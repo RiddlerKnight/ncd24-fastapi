@@ -36,6 +36,9 @@ jobs:
           else
             echo "DEPLOY_ENV=${{ github.ref_name }}" >> "$GITHUB_ENV"
           fi
+          echo IMAGE_REPO=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo IMAGE_NAME=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
