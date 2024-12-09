@@ -70,6 +70,10 @@ jobs:
     permissions:
       packages: write
     steps:
+      - name: Normal env
+        run: |
+          echo "IMAGE_REPO_NORMAL=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "IMAGE_NAME_NORMAL=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v4
       - name: Login to Container Registry
@@ -99,6 +103,10 @@ jobs:
       - setup
       - build-push
     steps:
+      - name: Normal env
+        run: |
+          echo "IMAGE_REPO_NORMAL=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "IMAGE_NAME_NORMAL=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Check if container image tag exists
         uses: tyriis/docker-image-tag-exists@v2.1.0
         id: check-tag
