@@ -53,6 +53,10 @@ jobs:
     needs:
       - setup
     steps:
+      - name: Normal env
+        run: |
+          echo "IMAGE_REPO_NORMAL=$(echo $IMAGE_REPO | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "IMAGE_NAME_NORMAL=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Check if container image tag exists
         uses: tyriis/docker-image-tag-exists@v2.1.0
         id: check-tag
